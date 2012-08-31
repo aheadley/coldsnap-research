@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import hashlib
-import math
 
 BLOCK_SIZE      = 4096
 BUFFER_LEN      = 512
