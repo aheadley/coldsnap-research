@@ -15,7 +15,8 @@ def save_block(base_dir, block_hash, block_data):
         data['block_hash_set'].add(block_hash)
 
 def get_block(base_dir, block_hash):
-    with open(os.path.join(base_dir, '%s.block' % block_hash)) as bf:
+    with open(os.path.join(base_dir, block_hash[0], block_hash[1],
+            '%s.block' % block_hash)) as bf:
         return bf.read()
 
 if __name__ == '__main__':
@@ -36,4 +37,5 @@ if __name__ == '__main__':
             pass
         with open(new_path, 'w') as nf:
             #print 'writing hashes for %s to %s' % (old_path, new_path)
-            nf.write(''.join(get_block(base_dir, bh) for bh in data['file_block_map'][old_path]))
+            nf.write(''.join(get_block(base_dir, bh) for bh in data['file_block_map'][old_path][1]))
+            nf.truncate(data['file_block_map'][old_path][0])

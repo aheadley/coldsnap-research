@@ -3,6 +3,7 @@
 import coldsnap
 import json
 import os
+import string
 
 def get_block_tuple(dev_handle, bn):
     block = coldsnap.read_block(dev_handle, bn)
@@ -10,7 +11,8 @@ def get_block_tuple(dev_handle, bn):
 
 def save_block(base_dir, block_hash, block_data):
     if block_hash not in data['block_hash_set']:
-        with open(os.path.join(base_dir, '%s.block' % block_hash), 'wb') as block_file:
+        with open(os.path.join(base_dir, block_hash[0], block_hash[1],
+                '%s.block' % block_hash), 'wb') as block_file:
             block_file.write(block_data)
         data['block_hash_set'].add(block_hash)
 
@@ -28,11 +30,18 @@ if __name__ == '__main__':
         'block_hash_set': set(),
     }
 
+    hex_chars = '0123456789abcdef'
+    for d in (os.path.join(base_dir, d1, d2) for d1 in hex_chars for d2 in hex_chars):
+        try:
+            os.makedirs(d)
+        except os.error:
+            pass
+
     with open(os.path.join('/dev', device_name), 'rb') as dev_handle:
         for path in coldsnap.walk_fs(backup_dir):
             blocks = [get_block_tuple(dev_handle, bn) \
                 for bn in coldsnap.get_file_blocks_by_name(path)]
-            data['file_block_map'][path] = [h[1] for h in blocks]
+            data['file_block_map'][path] = [os.stat(path).st_size, [h[1] for h in blocks]]
             for block in blocks:
                 save_block(base_dir, block[1], block[2])
 
